@@ -1,23 +1,24 @@
-﻿Set-StrictMode -Version Latest
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 #------------------------------
 
-$root = $PWD
-
-# .NET
-cd ..\dotnet\scripts
-& .\ci.ps1
-if ($LASTEXITCODE -ne 0)
+$mvnPath = ''
+if (Get-Command 'mvn' -ErrorAction SilentlyContinue) 
 {
-    Write-Output ".NET build failed. See console output"
-    Exit $LASTEXITCODE
+    $mvnPath = 'mvn'
+}
+else
+{
+    Write-Output 'Unable to find mvn in your PATH'
+    Exit 1
 }
 
-# Java
-cd $root\..\java\scripts
-& .\ci.ps1
+$projectDir = Join-Path $PSScriptRoot "../"
+
+# Compile
+& $mvnPath -f $projectDir compile
 if ($LASTEXITCODE -ne 0)
 {
-    Write-Output "Java build failed. See console output"
+    Write-Output "Compile failed. See output"
     Exit $LASTEXITCODE
 }
